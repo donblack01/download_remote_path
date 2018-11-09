@@ -17,8 +17,8 @@ func download(path, downPath string) {
 		err := os.MkdirAll(downPath, os.ModePerm)
 		if err != nil {
 			fmt.Printf("%s", err)
+			return
 		}
-		return
 	}
 	pathSlice := strings.Split(path, "/")
 	fileName := pathSlice[len(pathSlice)-1]
@@ -33,10 +33,6 @@ func download(path, downPath string) {
 		return
 	}
 	content, _ := ioutil.ReadAll(resp.Body)
-	_, err = os.Stat(downPath)
-	if os.IsNotExist(err) {
-		os.Mkdir(downPath, os.ModePerm)
-	}
 	if len(nameSlice) != 1 {
 		newPath := downPath + "/" + nameSlice[0] + "." + nameSlice[1]
 		out, _ := os.Create(newPath)
