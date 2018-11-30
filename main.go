@@ -46,7 +46,6 @@ func download(path, downPath string) {
 			pathRoute = nameSlice[0] + "."
 		}
 		newPath = downPath + "/" + pathRoute + nameSlice[nameSliceLenght-1]
-
 		out, _ := os.Create(newPath)
 		io.Copy(out, bytes.NewReader(content))
 	} else {
