@@ -17,8 +17,8 @@ func download(path, downPath string) {
 		err := os.MkdirAll(downPath, os.ModePerm)
 		if err != nil {
 			fmt.Printf("%s", err)
+			return
 		}
-		return
 	}
 	pathSlice := strings.Split(path, "/")
 	fileName := pathSlice[len(pathSlice)-1]
@@ -33,19 +33,30 @@ func download(path, downPath string) {
 		return
 	}
 	content, _ := ioutil.ReadAll(resp.Body)
-	_, err = os.Stat(downPath)
-	if os.IsNotExist(err) {
-		os.Mkdir(downPath, os.ModePerm)
-	}
-	if len(nameSlice) != 1 {
-		newPath := downPath + "/" + nameSlice[0] + "." + nameSlice[1]
+	nameSliceLenght := len(nameSlice)
+	if nameSliceLenght > 1 {
+		var newPath string
+		var pathRoute string
+
+		if nameSliceLenght > 2 {
+			for i := 0; i < nameSliceLenght-1; i++ {
+				pathRoute += nameSlice[i] + "."
+			}
+		} else {
+			pathRoute = nameSlice[0] + "."
+		}
+		newPath = downPath + "/" + pathRoute + nameSlice[nameSliceLenght-1]
+
 		out, _ := os.Create(newPath)
 		io.Copy(out, bytes.NewReader(content))
 	} else {
 
-		reg, _ := regexp.Compile(`<li><a href="([^ \f\n\r\t\v]*)"> (?:[^ \f\n\r\t\v]*)</a></li>`)
+		reg, _ := regexp.Compile(`<a href="([^ \f\n\r\t\v]*)">([\s]?[^ \f\n\r\t\v]*)</a>`)
 		regName := reg.FindAllStringSubmatch(string(content), -1)
 		for _, v := range regName {
+			if v[2] == "Name" || v[2] == "Last modified" || v[2] == "Size" || v[2] == "Description" || v[2] == "Parent Directory" {
+				continue
+			}
 			download(path+v[1], downPath+"/"+nameSlice[0])
 		}
 	}
