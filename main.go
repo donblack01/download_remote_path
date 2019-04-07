@@ -9,6 +9,8 @@ import (
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/mattn/go-gtk/gtk"
 )
 
 func download(path, downPath string) {
@@ -62,11 +64,47 @@ func download(path, downPath string) {
 
 }
 func main() {
-	var path, downPath string
-	fmt.Println("请输入源链接：")
-	fmt.Scanln(&path)
-	fmt.Println("请输入存放目录：")
-	fmt.Scanln(&downPath)
-	download(path, downPath)
+	gtk.Init(&os.Args)
+	mainWindow := gtk.NewWindow(gtk.WINDOW_TOPLEVEL)
+	mainWindow.SetTitle("下载远程文件")
+	mainWindow.SetIconFromFile("./images/1.png")
+	mainWindow.SetSizeRequest(400, 300)
+	layout := gtk.NewFixed()
+	mainWindow.Add(layout)
+	button := gtk.NewButtonWithLabel("确定")
+	label1 := gtk.NewLabel("源地址：")
+	label2 := gtk.NewLabel("保存目录：")
+	label3 := gtk.NewLabel("")
+	entry1 := gtk.NewEntry()
+	entry2 := gtk.NewEntry()
+	button.SetSizeRequest(100, 30)
+	label1.SetSizeRequest(100, 30)
+	entry1.SetSizeRequest(200, 30)
+	label2.SetSizeRequest(100, 30)
+	entry2.SetSizeRequest(200, 30)
+	label3.SetSizeRequest(225, 30)
+	layout.Put(button, 150, 233)
+	layout.Put(label1, 23, 27)
+	layout.Put(label2, 23, 99)
+	layout.Put(label3, 77, 173)
+	layout.Put(entry1, 140, 27)
+	layout.Put(entry2, 140, 99)
 
+	button.Clicked(func() {
+		content1 := entry1.GetText()
+		content2 := entry2.GetText()
+		if content1 == "" || content2 == "" {
+			label3.SetText("参数不能为空")
+			return
+		}
+		label3.SetText("下载中，请稍后")
+		download(content1, content2)
+		label3.SetText("下载完成")
+	})
+
+	mainWindow.Connect("destroy", func() {
+		gtk.MainQuit()
+	})
+	mainWindow.ShowAll()
+	gtk.Main()
 }
